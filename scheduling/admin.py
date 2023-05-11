@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import LearningGroup, Language, UserProfile, Lesson
+
+admin.site.register(LearningGroup)
+admin.site.register(Language)
+admin.site.register(UserProfile)
+admin.site.register(Lesson)

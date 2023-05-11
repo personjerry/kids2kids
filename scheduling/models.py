@@ -1,14 +1,18 @@
 from django.db import models
 
-# "Add Group" -> dropdown of langauges -> dropdown of groups "Don't worry you can add more later"
-
 class Language(models.Model):
     name = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 
 class LearningGroup(models.Model):
     name = models.CharField(max_length=200)
     language = models.ForeignKey(Language, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.name
 
 
 class UserProfile(models.Model):
