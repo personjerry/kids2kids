@@ -1,0 +1,102 @@
+<style>
+    .group-box {
+        border: 2px solid black;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+        height: 200px;
+        position: relative;
+    }
+
+    .group-box h2 {
+        margin-bottom: 10px;
+    }
+
+    .group-box p {
+        margin-bottom: 20px;
+    }
+
+    .group-box form {
+        position: absolute;
+        bottom: 5;
+        left: 10;
+    }
+
+    .group-box button {
+        background-color: lightgreen;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+</style>
+
+
+<h1>Learning Groups:</h1>
+
+{% if learning_groups %}
+{% for group in learning_groups %}
+<div class="group group-box">
+    <h2>{{ group.name }}</h2>
+    <p>{{ group.description }}</p>
+    {% if group in request.user.userprofile.learning_groups.all %}
+    <p>You are a member of this group.</p>
+    {% else %}
+    <form method="post" action="">
+        {% csrf_token %}
+        <input type="hidden" name="group_id" value="{{ group.id }}">
+        <button type="submit" name="join_group">Join this group</button>
+    </form>
+    {% endif %}
+</div>
+{% endfor %}
+{% else %}
+<p>No learning groups found.</p>
+{% endif %}
+
+<script>
+
+        document.querySelector('#join-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get the form data
+            const formData = new FormData(this);
+
+            // Send an AJAX request to the server to join the group
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Unable to join group.');
+                    }
+                })
+                .then(data => {
+                    // Update the button text and disable it
+                    const joinButton = this.querySelector('[name=join_group]');
+                    joinButton.textContent = 'Joined';
+                    joinButton.disabled = true;
+
+                    // Update the content on the page to reflect the new membership status
+                    const groupBox = this.closest('.group-box');
+                    const message = document.createElement('p');
+                    message.textContent = 'You are a member of this group.';
+                    groupBox.appendChild(message);
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Unable to join group. Please try again later.');
+                });
+        });
+
+</script>
