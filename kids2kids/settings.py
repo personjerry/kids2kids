@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,6 +27,10 @@ SECRET_KEY = 'django-insecure-!4(!i6nn!6*lv2nal@7_-q)$f(5k7ek9@q=lq(n%@)2l0l&^+n
 DEBUG = True
 
 ALLOWED_HOSTS = []
+LOGIN_REDIRECT_URL = '/scheduling/cohorts/'
+
+LOGIN_URL = '/scheduling/login/'
+
 
 
 # Application definition
@@ -38,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
 ]
 
 MIDDLEWARE = [
