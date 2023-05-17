@@ -1,14 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib import messages
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
-from .models import UserProfile, LearningGroup, UserProfileForm
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import authenticate, login, get_user_model
-from django.contrib import messages
+from .models import *
 
 User = get_user_model()
 
@@ -20,7 +17,7 @@ def index(request):
 class Login(FormView):
     form_class = AuthenticationForm
     success_url = reverse_lazy('index')
-    template_name = 'login.html'
+    # template_name = 'login.html'
 
     def form_valid(self, form):
         username = form.cleaned_data['username']
@@ -32,20 +29,29 @@ class Login(FormView):
 
 User = get_user_model()
 
-def register(request):
-#     form = UserCreationForm(request.POST or None)
-#     if request.method == 'POST' and form.is_valid():
-#         user = form.save()
-#         user_profile = UserProfile.objects.create(
-#             user=user,
-#             email=form.cleaned_data['email'],
-#             is_teacher=form.cleaned_data['is_teacher']
-#         )
-#         messages.success(request, f'Account created for {user.username}!')
-#         return redirect('cohorts')
-#     context = {'form': form}
-    return render(request, 'registration/signup.html', context)
 
+def register(request):
+    form = CustomUserCreationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        user_profile, created = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                'email': form.cleaned_data['email'],
+                'is_teacher': form.cleaned_data['is_teacher']
+            }
+        )
+        if created:
+            messages.success(request, f'Account created for {user.username}!')
+            success_url = reverse_lazy('cohorts')
+        else:
+            messages.info(
+                request, f'Account already exists for {user.username}!')
+
+        return redirect('cohorts')
+
+    context = {'form': form}
+    return render(request, 'registration/signup.html', context)
 
 
 @login_required
@@ -66,7 +72,6 @@ def join_group(request, group_id):
     return redirect('cohorts')
 
 
-@login_required
 def cohorts(request):
     cohorts = LearningGroup.objects.all()
     context = {'learning_groups': cohorts}
@@ -88,14 +93,7 @@ def cohorts(request):
             messages.success(
                 request, 'You have successfully joined the group.')
 
-    # Add group to the context
     context['group'] = group
-
-    # Use the actual URL pattern for joining a group
-    # join_group_url = reverse("joingroup", args = [group.id])
-    # context['join_group_url'] = join_group_url
-
-    # Add group_id to the context
     context['group_id'] = group.id
 
     return render(request, 'cohorts.html', context)

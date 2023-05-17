@@ -7,6 +7,16 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
 
+
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    is_teacher = forms.BooleanField(required=False, widget=forms.CheckboxInput)
+
+    class Meta(UserCreationForm.Meta):
+        fields = UserCreationForm.Meta.fields + ('email', 'is_teacher')
+
+
+
 class Language(models.Model):
     name = models.CharField(max_length=200)
 
@@ -23,37 +33,17 @@ class LearningGroup(models.Model):
 
 
 class UserProfile(models.Model):
-    # set default value of is_teacher to False
     is_teacher = models.BooleanField(default=False)
-    # set ManyToManyField to use LearningGroup model
+    email = models.EmailField(default='default@example.com')
     learning_groups = models.ManyToManyField(LearningGroup)
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, null=True, blank=True)
+        User, on_delete=models.CASCADE, null=False, blank=False)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.username
 
-
-class UserProfileForm(UserCreationForm):
-    is_teacher = forms.BooleanField(required=False, widget=forms.CheckboxInput)
-
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'password1', 'password2')
-
-    def save(self, commit=True):
-        # call parent class's save method to create User instance
-        user = super().save(commit=False)
-        if commit:
-            user.save()
-        # create UserProfile instance with user instance and is_teacher value from form
-        user_profile = UserProfile(
-            user=user, is_teacher=self.cleaned_data['is_teacher'])
-        user_profile.save()
-        # return both user and user_profile instances
-        return user, user_profile
 
 
 class Lesson(models.Model):
