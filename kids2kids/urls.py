@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from scheduling import urls as scheduling_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('scheduling/', include('scheduling.urls', namespace='scheduling')),
+    path('scheduling/', include((scheduling_urls, 'scheduling'))), 
 ]

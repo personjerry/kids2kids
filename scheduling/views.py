@@ -1,3 +1,7 @@
+from django import forms
+from .models import UserProfile
+from .models import CustomUserCreationForm
+from django.contrib.auth import get_user_model, login
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -26,29 +30,31 @@ class Login(FormView):
         login(self.request, user)
 
 
-
-User = get_user_model()
-
-
 def register(request):
-    form = CustomUserCreationForm(request.POST or None)
-    if request.method == 'POST' and form.is_valid():
-        user = form.save()
-        user_profile, created = UserProfile.objects.get_or_create(
-            user=user,
-            defaults={
-                'email': form.cleaned_data['email'],
-                'is_teacher': form.cleaned_data['is_teacher']
-            }
-        )
-        if created:
-            messages.success(request, f'Account created for {user.username}!')
-            success_url = reverse_lazy('cohorts')
-        else:
-            messages.info(
-                request, f'Account already exists for {user.username}!')
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user_profile, created = UserProfile.objects.get_or_create(
+                user=user,
+                defaults={
+                    'email': form.cleaned_data['email'],
+                    'is_teacher': form.cleaned_data['is_teacher']
+                }
+            )
+            if created:
+                messages.success(
+                    request, f'Account created for {user.username}!')
+            else:
+                messages.info(
+                    request, f'Account already exists for {user.username}!')
 
-        return redirect('cohorts')
+            # Log in the user
+            login(request, user)
+
+            return redirect('scheduling:cohorts')
+    else:
+        form = CustomUserCreationForm()
 
     context = {'form': form}
     return render(request, 'registration/signup.html', context)

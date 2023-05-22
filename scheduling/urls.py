@@ -4,6 +4,7 @@ from . import views
 
 app_name = 'scheduling'
 
+
 urlpatterns = [
     # home
     path('', views.index, name='index'),
