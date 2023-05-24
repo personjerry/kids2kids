@@ -7,19 +7,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
 
-
-class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    is_teacher = forms.BooleanField(required=False, widget=forms.CheckboxInput)
-
-    class Meta(UserCreationForm.Meta):
-        fields = UserCreationForm.Meta.fields + ('email', 'is_teacher')
-
-
-
 class Language(models.Model):
     name = models.CharField(max_length=200)
-
     def __str__(self):
         return self.name
 

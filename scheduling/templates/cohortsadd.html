@@ -1,0 +1,11 @@
+<form method="post" action="{% url 'scheduling:cohorts' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Cohort</button>
+</form>
+
+<!-- Display existing cohorts -->
+{% for cohort in learning_groups.all %}
+<h2>{{ cohort.name }}</h2>
+<!-- Display cohort details -->
+{% endfor %}

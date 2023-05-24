@@ -1,6 +1,4 @@
-from django import forms
 from .models import UserProfile
-from .models import CustomUserCreationForm
 from django.contrib.auth import get_user_model, login
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -10,6 +8,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from .models import *
+from .forms import *
 
 User = get_user_model()
 
@@ -103,3 +102,18 @@ def cohorts(request):
     context['group_id'] = group.id
 
     return render(request, 'cohorts.html', context)
+
+def cohortmanagement(request):
+    cohorts = request.user.userprofile.learning_groups
+    context = {'learning_groups': cohorts}
+    if request.method == 'POST':
+        form = LearningGroupForm(request.POST)
+        if form.is_valid():
+            group = form.save()
+            messages.success(request, 'Cohort created successfully.')
+            return redirect('cohorts')
+    else:
+        form = LearningGroupForm()
+    context["form"] = form
+    return render(request, 'cohortsadd.html', context)
+

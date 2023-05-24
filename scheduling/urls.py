@@ -20,6 +20,7 @@ urlpatterns = [
 
     # cohort stuff
     path('cohorts/', views.cohorts, name='cohorts'),
+    path('cohortsmanage/', views.cohortmanagement, name='cohortsmanagament')
 
     
 ]
